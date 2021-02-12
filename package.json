@@ -1,0 +1,63 @@
+{
+  "name": "github-actions",
+  "version": "1.0.0",
+  "description": "Different GitHub actions",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saby/github-actions.git"
+  },
+  "main": "tslint/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "github-actions",
+    "tslint",
+    "typescript"
+  ],
+  "author": "Zimichev Dmitrii <empyrosx@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/saby/github-actions/issues"
+  },
+  "homepage": "https://github.com/saby/github-actions#readme",
+  "devDependencies": {
+    "@semantic-release/changelog": "3.0.6",
+    "@semantic-release/commit-analyzer": "6.3.3",
+    "@semantic-release/exec": "3.3.8",
+    "@semantic-release/git": "7.0.18",
+    "@semantic-release/release-notes-generator": "7.3.5",
+    "@types/common-tags": "1.8.0",
+    "@types/glob": "7.1.3",
+    "@types/node": "10.17.50",
+    "@vingle/commitlint-preset": "1.0.3",
+    "@vingle/tslint-preset": "1.0.1",
+    "chai": "4.2.0",
+    "husky": "3.1.0",
+    "semantic-release": "15.14.0"
+  },
+  "dependencies": {
+    "@actions/core": "^1.1.1",
+    "@actions/github": "^1.1.0",
+    "@octokit/rest": "^16.28.9",
+    "common-tags": "^1.8.0",
+    "glob": "^7.1.4",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "commitlint": {
+    "extends": [
+      "@vingle/commitlint-preset"
+    ]
+  }
+}
