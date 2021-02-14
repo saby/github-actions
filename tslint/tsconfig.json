@@ -8,6 +8,6 @@
         "strictNullChecks": true
     },
     "include": [
-        "tslint/index.ts"
+        "index.ts"
     ]
 }
