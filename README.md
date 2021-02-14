@@ -20,7 +20,7 @@ jobs:
       - name: Prepare
         run: npm ci
       - name: Lint
-        uses: saby/github-actions/tslint@v1.1.1
+        uses: saby/github-actions/tslint@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pattern: '*.ts'
