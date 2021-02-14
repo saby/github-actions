@@ -34,6 +34,7 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, 'warning' | 'failure'>(
     return;
   }
 
+  // @ts-ignore
   const octokit = new github.GitHub(ghToken) as Octokit;
 
   // Create check
@@ -82,6 +83,7 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, 'warning' | 'failure'>(
     }
   })();
 
+  // @ts-ignore
   const annotations: Octokit.ChecksCreateParamsOutputAnnotations[] = result.failures.map((failure) => ({
     path: failure.getFileName(),
     start_line: failure.getStartPosition().getLineAndCharacter().line,
