@@ -7,7 +7,7 @@ WORKDIR /var/task
 
 COPY package.json package-lock.json /var/task/
 RUN npm ci --production
-RUN curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s
+RUN wget -O - -q https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s
 
 COPY entrypoint.sh index.js /var/task/
 
