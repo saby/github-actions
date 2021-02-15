@@ -15,6 +15,11 @@ const child = require("child_process");
         core.setFailed('tslint-actions: Please set project or pattern input');
         return;
     }
+    const ghToken = core.getInput('token');
+    if (!ghToken) {
+        core.setFailed('github-actions: Please set token');
+        return;
+    }
     const options = {
         fix: false,
         format: 'prose'
@@ -50,7 +55,7 @@ const child = require("child_process");
         }
     })();
     fs.writeFileSync('/var/task/result.json', result.output);
-    child.exec('/var/task/bin/reviewdog -reporter=github-check -f=tslint < /var/task/result.json'
+    child.exec('/var/task/bin/reviewdog -reporter=github-check -f=tslint < /var/task/result.json', { env: { REVIEWDOG_GITHUB_API_TOKEN: ghToken } }
     // @ts-ignore
     , (error, stdout, stderr) => {
         if (error) {
