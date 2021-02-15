@@ -54,8 +54,11 @@ import * as child from 'child_process';
     }
   })();
 
-  // @ts-ignore
-  child.exec('/var/task/bin/reviewdog -list', (error: string, stdout: string, stderr: string) => {
+  fs.writeFileSync('/var/task/result.json', result.output);
+
+  child.exec('/var/task/bin/reviewdog -reporter=github-pr-check -f typescript < /var/task/result.json'
+      // @ts-ignore
+      , (error: string, stdout: string, stderr: string) => {
     if (error) {
       console.error(`error: ${error}`); // tslint:disable-line
       return;

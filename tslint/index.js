@@ -48,8 +48,10 @@ const child = require("child_process");
             return linter.getResult();
         }
     })();
+    fs.writeFileSync('/var/task/result.json', result.output);
+    child.exec('/var/task/bin/reviewdog -reporter=github-pr-check -f typescript < /var/task/result.json'
     // @ts-ignore
-    child.exec('/var/task/bin/reviewdog -list', (error, stdout, stderr) => {
+    , (error, stdout, stderr) => {
         if (error) {
             console.error(`error: ${error}`); // tslint:disable-line
             return;
