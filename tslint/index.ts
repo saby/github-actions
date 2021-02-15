@@ -55,7 +55,7 @@ import * as child from 'child_process';
   })();
 
   // @ts-ignore
-  child.exec('reviewdog -list', (error: string, stdout: string, stderr: string) => {
+  child.exec('./../bin/reviewdog -list', (error: string, stdout: string, stderr: string) => {
     if (error) {
       console.error(`error: ${error}`); // tslint:disable-line
       return;
