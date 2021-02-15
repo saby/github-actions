@@ -16,7 +16,8 @@ const child = require("child_process");
         return;
     }
     const options = {
-        fix: false
+        fix: false,
+        format: 'prose'
     };
     // Create a new Linter instance
     const result = (() => {
@@ -49,7 +50,7 @@ const child = require("child_process");
         }
     })();
     fs.writeFileSync('/var/task/result.json', result.output);
-    child.exec('/var/task/bin/reviewdog -reporter=github-check -f typescript < /var/task/result.json'
+    child.exec('/var/task/bin/reviewdog -reporter=github-check -f=tslint < /var/task/result.json'
     // @ts-ignore
     , (error, stdout, stderr) => {
         if (error) {
