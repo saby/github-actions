@@ -49,7 +49,7 @@ const child = require("child_process");
         }
     })();
     // @ts-ignore
-    child.exec('./../bin/reviewdog -list', (error, stdout, stderr) => {
+    child.exec('reviewdog -list', (error, stdout, stderr) => {
         if (error) {
             console.error(`error: ${error}`); // tslint:disable-line
             return;
