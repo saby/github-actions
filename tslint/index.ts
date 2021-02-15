@@ -1,54 +1,23 @@
-import * as core from "@actions/core"; // tslint:disable-line
-// Currently @actions/github cannot be loaded via import statement due to typing error
-const github = require("@actions/github"); // tslint:disable-line
-import { Context } from '@actions/github/lib/context';
-import * as Octokit from '@octokit/rest';
-import { stripIndent as markdown } from 'common-tags';
+import * as core from '@actions/core';
 import * as fs from 'fs';
 import * as glob from 'glob';
 import * as path from 'path';
-import { Configuration, Linter, RuleSeverity } from 'tslint';
+import { Configuration, Linter } from 'tslint';
+import * as child from 'child_process';
 
-const CHECK_NAME = 'TSLint Checks';
-
-const SeverityAnnotationLevelMap = new Map<RuleSeverity, 'warning' | 'failure'>([
-  ['warning', 'warning'],
-  ['error', 'failure']
-]);
-
+// @ts-ignore
 (async () => {
-  const ctx = github.context as Context;
-
   const configFileName = core.getInput('config') || 'tslint.json';
   const projectFileName = core.getInput('project');
   const pattern = core.getInput('pattern');
-  const ghToken = core.getInput('token');
 
   if (!projectFileName && !pattern) {
     core.setFailed('tslint-actions: Please set project or pattern input');
     return;
   }
 
-  if (!ghToken) {
-    core.setFailed('tslint-actions: Please set token');
-    return;
-  }
-
-  // @ts-ignore
-  const octokit = new github.GitHub(ghToken) as Octokit;
-
-  // Create check
-  const check = await octokit.checks.create({
-    owner: ctx.repo.owner,
-    repo: ctx.repo.repo,
-    name: CHECK_NAME,
-    head_sha: ctx.sha,
-    status: 'in_progress'
-  });
-
   const options = {
-    fix: false,
-    formatter: 'json'
+    fix: false
   };
 
   // Create a new Linter instance
@@ -59,6 +28,7 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, 'warning' | 'failure'>(
       const linter = new Linter(options, program);
 
       const files = Linter.getFileNames(program);
+      // @ts-ignore
       for (const file of files) {
         const sourceFile = program.getSourceFile(file);
         if (sourceFile) {
@@ -72,7 +42,8 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, 'warning' | 'failure'>(
     } else {
       const linter = new Linter(options);
 
-      const files = glob.sync(pattern!);
+      const files = glob.sync(pattern!); // tslint:disable-line
+      // @ts-ignore
       for (const file of files) {
         const fileContents = fs.readFileSync(file, { encoding: 'utf8' });
         const configuration = Configuration.findConfiguration(configFileName, file).results;
@@ -84,46 +55,21 @@ const SeverityAnnotationLevelMap = new Map<RuleSeverity, 'warning' | 'failure'>(
   })();
 
   // @ts-ignore
-  const annotations: Octokit.ChecksCreateParamsOutputAnnotations[] = result.failures.map((failure) => ({
-    path: failure.getFileName(),
-    start_line: failure.getStartPosition().getLineAndCharacter().line,
-    end_line: failure.getEndPosition().getLineAndCharacter().line,
-    annotation_level: SeverityAnnotationLevelMap.get(failure.getRuleSeverity()) || 'notice',
-    message: `[${failure.getRuleName()}] ${failure.getFailure()}`
-  }));
-
-  // Update check
-  await octokit.checks.update({
-    owner: ctx.repo.owner,
-    repo: ctx.repo.repo,
-    check_run_id: check.data.id,
-    name: CHECK_NAME,
-    status: 'completed',
-    conclusion: result.errorCount > 0 ? 'failure' : 'success',
-    output: {
-      title: CHECK_NAME,
-      summary: `${result.errorCount} error(s), ${result.warningCount} warning(s) found`,
-      text: markdown`
-        ## Configuration
-
-        #### Actions Input
-
-        | Name | Value |
-        | ---- | ----- |
-        | config | \`${configFileName}\` |
-        | project | \`${projectFileName || '(not provided)'}\` |
-        | pattern | \`${pattern || '(not provided)'}\` |
-
-        #### TSLint Configuration
-
-        \`\`\`json
-        __CONFIG_CONTENT__
-        \`\`\`
-        </details>
-      `.replace('__CONFIG_CONTENT__', JSON.stringify(Configuration.readConfigurationFile(configFileName), null, 2)),
-      annotations
+  child.exec('reviewdog -list', (error: string, stdout: string, stderr: string) => {
+    if (error) {
+      console.error(`error: ${error}`); // tslint:disable-line
+      return;
     }
+
+    if (stderr) {
+      console.error(`stderr: ${stderr}`); // tslint:disable-line
+      return;
+    }
+
+    console.log(`stdout:\n${stdout}`); // tslint:disable-line
   });
+
+  console.log(result.output); // tslint:disable-line
 })().catch((e) => {
   console.error(e.stack); // tslint:disable-line
   core.setFailed(e.message);
